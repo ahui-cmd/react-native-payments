@@ -1,7 +1,7 @@
 // @flow
 
 import * as React from 'react';
-import { NativeModules, requireNativeComponent } from 'react-native';
+import { Platform, requireNativeComponent } from 'react-native';
 
 type PKPaymentButtonType =
   // A button with the Apple Pay logo only.
@@ -32,7 +32,7 @@ type Props = $Exact<{
   onPress: Function,
 }>;
 
-const RNPKPaymentButton = requireNativeComponent('PKPaymentButton', null, {
+const RNPKPaymentButton = Platform.OS === 'harmony' ? null : requireNativeComponent('PKPaymentButton', null, {
   nativeOnly: { onPress: true },
 });
 
@@ -49,6 +49,9 @@ export class PKPaymentButton extends React.Component<Props> {
   };
 
   render() {
+    if (Platform.OS === 'harmony') {
+      throw new Error('NotSupportedError: ApplePayButton is only available on iOS.');
+    }
     return (
       <RNPKPaymentButton
         buttonStyle={this.props.style}

@@ -12,7 +12,7 @@ import {
 } from './constants';
 const noop = () => {};
 
-import PaymentRequest from '.';
+import type PaymentRequest from '.';
 import NativePayments from '../NativeBridge';
 
 // Helpers
@@ -172,7 +172,8 @@ export default class PaymentRequestUpdateEvent {
     let target = this.target;
 
     // 3. If target is not a PaymentRequest object, then throw a TypeError.
-    if (!(target instanceof PaymentRequest)) {
+    const PaymentRequestClass = require('.').default;
+    if (!(target instanceof PaymentRequestClass)) {
       throw new Error('TypeError');
     }
 

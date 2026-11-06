@@ -2,10 +2,13 @@
 
 import type { PaymentDetailsBase, PaymentComplete } from './types';
 
-import { NativeModules, Platform } from 'react-native';
+import { NativeModules, Platform, TurboModuleRegistry } from 'react-native';
 const { ReactNativePayments } = NativeModules;
 
 const IS_ANDROID = Platform.OS === 'android';
+const IS_HARMONY = Platform.OS === 'harmony';
+const unsupported = () => new Error('NotSupportedError: HarmonyOS payment service or huawei-pay orderStr is unavailable.');
+const harmonyModule = () => TurboModuleRegistry && TurboModuleRegistry.get('RNPaymentsHarmony');
 
 const NativePayments: {
   canMakePayments: boolean,
@@ -23,6 +26,11 @@ const NativePayments: {
     : ReactNativePayments ? ReactNativePayments.supportedGateways : [],
 
   canMakePayments(methodData: object) {
+    if (IS_HARMONY) {
+      const module = harmonyModule();
+      if (!module || !methodData || typeof methodData.orderStr !== 'string' || !methodData.orderStr.trim()) return Promise.resolve(false);
+      return module.isAvailable().catch(() => false);
+    }
     return new Promise((resolve, reject) => {
       if (IS_ANDROID) {
         ReactNativePayments.canMakePayments(
@@ -42,6 +50,7 @@ const NativePayments: {
   // TODO based on Naoufal's talk on YouTube the intention of canMakePayments is for it to work like this, so I'm thinking we can integrate Yegor's code into canMakePayments.
   // NF 2020-11-18
   canMakePaymentsUsingNetworks(usingNetworks: []) {
+    if (IS_HARMONY) return Promise.resolve(false);
     // IOS method to check that user has available cards at Apple Pay
     // https://developer.apple.com/documentation/passkit/pkpaymentauthorizationviewcontroller/1616187-canmakepaymentsusingnetworks?language=occ
 
@@ -58,6 +67,7 @@ const NativePayments: {
   },
 
   createPaymentRequest(methodData, details, options = {}) {
+    if (IS_HARMONY) return Promise.resolve();
     return new Promise((resolve, reject) => {
       // Android Pay doesn't a PaymentRequest interface on the
       // Java side.  So we create and show Android Pay when
@@ -80,6 +90,7 @@ const NativePayments: {
   },
 
   handleDetailsUpdate(details) {
+    if (IS_HARMONY) return Promise.reject(unsupported());
     return new Promise((resolve, reject) => {
       // Android doesn't have display items, so we noop.
       // Users need to create a new Payment Request if they
@@ -99,6 +110,14 @@ const NativePayments: {
   },
 
   show(methodData, details, options = {}) {
+    if (IS_HARMONY) {
+      const module = harmonyModule();
+      if (!module || !methodData || typeof methodData.orderStr !== 'string' || !methodData.orderStr.trim()) return Promise.reject(unsupported());
+      if (options.requestShipping || options.requestPayerName || options.requestPayerPhone || options.requestPayerEmail) {
+        return Promise.reject(new Error('NotSupportedError: Payment Kit does not provide shipping or payer details through this bridge.'));
+      }
+      return module.pay(methodData.orderStr);
+    }
     return new Promise((resolve, reject) => {
       if (IS_ANDROID) {
         ReactNativePayments.show(
@@ -121,6 +140,7 @@ const NativePayments: {
   },
 
   abort() {
+    if (IS_HARMONY) return Promise.reject(unsupported());
     return new Promise((resolve, reject) => {
       if (IS_ANDROID) {
         // TODO
@@ -138,6 +158,7 @@ const NativePayments: {
   },
 
   complete(paymentStatus) {
+    if (IS_HARMONY) return Promise.resolve();
     return new Promise((resolve, reject) => {
       // Android doesn't have a loading state, so we noop.
       if (IS_ANDROID) {

@@ -1,0 +1,11 @@
+[
+    {
+        "Name": "react-native-payments",
+        "License": "MIT License",
+        "License File": "LICENSE",
+        "Version Number": "0.8.3",
+        "Owner" : "panjinling@huawei.com",
+        "Upstream URL": "https://github.com/naoufal/react-native-payments",
+        "Description": "React Native payment request and platform payment integration."
+    }
+]

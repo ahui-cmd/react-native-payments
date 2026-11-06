@@ -1,0 +1,10 @@
+{
+  "name": "@react-native-ohos/react-native-payments",
+  "version": "0.8.4-beta.1",
+  "description": "Payment Kit bridge for React Native",
+  "main": "Index.ets",
+  "license": "MIT",
+  "dependencies": {
+    "@rnoh/react-native-openharmony": "*"
+  }
+}

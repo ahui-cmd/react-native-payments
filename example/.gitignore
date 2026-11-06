@@ -1,0 +1,16 @@
+# Generated bundle and assets
+harmony/entry/src/main/resources/rawfile/
+harmony/.hvigor/
+harmony/.idea/
+harmony/oh_modules/
+harmony/entry/oh_modules/
+harmony/entry/.cxx/
+harmony/entry/build/
+harmony/build-last.log
+
+harmony/build-profile.json5
+package-lock.json
+
+sandbox-merchant/certs/*
+!sandbox-merchant/certs/.gitkeep
+sandbox-merchant/node_modules/

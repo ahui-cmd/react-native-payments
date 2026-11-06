@@ -85,6 +85,8 @@ export default class PaymentResponse {
 
     this._completeCalled = true;
 
+    if (this._methodName === 'huawei-pay') return NativePayments.complete(paymentStatus).then(() => undefined);
+
     return new Promise((resolve, reject) => {
       return NativePayments.complete(paymentStatus, () => {
         return resolve(undefined);

@@ -1,2 +1,5 @@
+node_modules
+oh_modules
+example
 examples
-.babelrc
+*.tgz

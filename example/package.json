@@ -1,0 +1,40 @@
+{
+  "name": "payments-harmony-example",
+  "version": "1.0.0",
+  "private": true,
+  "scripts": {
+    "i": "cd ../ && npm i --legacy-peer-deps && npm run pack && cd ./example && npm i --legacy-peer-deps",
+    "fast:pkg": "npm run fast-install-project && npm run dev",
+    "fast-install-project": "cd ../ && npm i --legacy-peer-deps && npm run pack && cd ./example && npm i --legacy-peer-deps",
+    "pack:pkg": "cd ../ && npm run pack && cd ./example",
+    "reStart": "npm run install:pkg && npm run codegen && hdc rport tcp:8081 tcp:8081 && react-native start",
+    "start": "hdc rport tcp:8081 tcp:8081 && react-native start",
+    "install:pkg": "npm uninstall @react-native-ohos/react-native-payments && cd ../ && npm run pack && cd ./example && npm i @react-native-ohos/react-native-payments@file:../react-native-ohos-react-native-payments-0.8.4-beta.1.tgz --legacy-peer-deps",
+    "codegen": "react-native codegen-harmony --cpp-output-path ./harmony/entry/src/main/cpp/generated --rnoh-module-path ./harmony/entry/oh_modules/@rnoh/react-native-openharmony",
+    "dev": "npm run codegen && react-native bundle-harmony --dev --minify=false",
+    "prod": "npm run codegen && react-native bundle-harmony --dev=false --minify=true",
+    "sandbox-order": "node ./sandbox-merchant/create-order.js",
+    "postinstall": "node ./scripts/create-build-profile"
+  },
+  "dependencies": {
+    "@react-native-oh-tpl/testerino": "0.0.9",
+    "@react-native-oh/react-native-harmony": "0.84.2",
+    "react": "19.2.3",
+    "react-native": "0.84.1",
+    "@react-native-ohos/react-native-payments": "file:../react-native-ohos-react-native-payments-0.8.4-beta.1.tgz"
+  },
+  "devDependencies": {
+    "@babel/core": "^7.25.2",
+    "@react-native-community/cli": "20.0.0",
+    "@react-native-oh/react-native-harmony-cli": "0.84.2",
+    "@react-native/babel-preset": "0.84.1",
+    "@react-native/metro-config": "0.84.1",
+    "json5": "^2.2.3"
+  },
+  "overrides": {
+    "@react-native-community/cli": "20.0.0"
+  },
+  "engines": {
+    "node": ">=18"
+  }
+}
