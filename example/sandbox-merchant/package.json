@@ -1,0 +1,12 @@
+{
+  "name": "payments-sandbox-merchant",
+  "version": "1.0.0",
+  "private": true,
+  "description": "Local Payment Kit sandbox pre-order tool. Runs on this computer and prints orderStr.",
+  "scripts": {
+    "order": "node ./create-order.js"
+  },
+  "optionalDependencies": {
+    "sm-crypto": "0.3.13"
+  }
+}

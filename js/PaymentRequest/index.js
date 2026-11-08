@@ -211,7 +211,7 @@ export default class PaymentRequest {
     const normalizedDetails = convertDetailAmountsToString(details);
 
     // Validate gateway config if present
-    if (hasGatewayConfig(platformMethodData)) {
+    if (Platform.OS !== 'harmony' && hasGatewayConfig(platformMethodData)) {
       validateGateway(
         getGatewayName(platformMethodData),
         NativePayments.supportedGateways
@@ -409,12 +409,23 @@ export default class PaymentRequest {
 
   _removeEventListeners() {
     // Internal Events
-    this._userDismissSubscription.remove()
-    this._userAcceptSubscription.remove()
+    if (Platform.OS === 'harmony') {
+      [this._userDismissSubscription, this._userAcceptSubscription].forEach(subscription => {
+        if (subscription && typeof subscription.remove === 'function') subscription.remove();
+        else if (typeof DeviceEventEmitter.removeSubscription === 'function') DeviceEventEmitter.removeSubscription(subscription);
+      });
+    } else {
+      DeviceEventEmitter.removeSubscription(this._userDismissSubscription);
+      DeviceEventEmitter.removeSubscription(this._userAcceptSubscription);
+    }
 
     if (IS_IOS) {
-      this._shippingAddressChangeSubscription.remove()
-      this._shippingOptionChangeSubscription.remove()
+      DeviceEventEmitter.removeSubscription(
+        this._shippingAddressChangeSubscription
+      );
+      DeviceEventEmitter.removeSubscription(
+        this._shippingOptionChangeSubscription
+      );
     }
   }
 
@@ -448,6 +459,10 @@ export default class PaymentRequest {
     return this._shippingOption;
   }
 
+  get shippingType(): null | PaymentShippingType {
+    return this._shippingType;
+  }
+
   // https://www.w3.org/TR/payment-request/#show-method
   show(): Promise<PaymentResponseType> {
     this._acceptPromise = new Promise((resolve, reject) => {
@@ -466,7 +481,25 @@ export default class PaymentRequest {
       const options = this._options;
 
       // Note: resolve will be triggered via _acceptPromiseResolver() from somwhere else
-      return NativePayments.show(platformMethodData, normalizedDetails, options).catch(reject);
+      return NativePayments.show(platformMethodData, normalizedDetails, options).then(result => {
+        if (Platform.OS === 'harmony') {
+          this._state = 'closed';
+          this._removeEventListeners();
+          resolve(new PaymentResponse({
+            requestId: this.id,
+            methodName: 'huawei-pay',
+            details: { status: result, requiresServerVerification: true },
+            shippingAddress: null, shippingOption: null,
+            payerName: null, payerPhone: null, payerEmail: null
+          }));
+        }
+      }).catch(error => {
+        if (Platform.OS === 'harmony') {
+          this._state = 'closed';
+          this._removeEventListeners();
+        }
+        reject(error);
+      });
     });
 
     return this._acceptPromise;
@@ -493,6 +526,7 @@ export default class PaymentRequest {
 
   // https://www.w3.org/TR/payment-request/#canmakepayment-method
   canMakePayments(): Promise<boolean> {
+    if (Platform.OS === 'harmony' && (this._options.requestShipping || this._options.requestPayerName || this._options.requestPayerPhone || this._options.requestPayerEmail)) return Promise.resolve(false);
     return NativePayments.canMakePayments(
       getPlatformMethodData(JSON.parse(this._serializedMethodData), Platform.OS)
     );

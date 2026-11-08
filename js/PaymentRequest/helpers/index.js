@@ -95,6 +95,13 @@ export function getPlatformMethodData(
   methodData: Array<PaymentMethodData>,
   platformOS: 'ios' | 'android'
 ) {
+  // Preserve construction and capability checks on HarmonyOS without claiming
+  // that any payment method can actually be processed.
+  if (platformOS === 'harmony') {
+    const harmonyMethod = methodData.find(method => method.supportedMethods.includes('huawei-pay'));
+    return harmonyMethod ? (harmonyMethod.data || {}) : {};
+  }
+
   const platformSupportedMethod =
     platformOS === 'ios' ? 'apple-pay' : 'android-pay';
 

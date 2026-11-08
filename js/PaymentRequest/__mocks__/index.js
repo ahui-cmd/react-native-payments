@@ -19,7 +19,7 @@ const mockNativePaymentsSupportedIOS = {
   createPaymentRequest: () => {},
   handleDetailsUpdate: async () => {},
   show: cb => cb(), // TODO, may have to fire an event that DeviceEventEmitter will listen to
-  abort: cb => cb(),
+  abort: () => Promise.resolve(),
   complete: (paymentStatus, cb) => cb()
 };
 

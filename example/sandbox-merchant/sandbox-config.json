@@ -1,0 +1,12 @@
+{
+  "appId": "",
+  "mercNo": "",
+  "authId": "",
+  "privateKeyPath": "./certs/merchant_private_key.pem",
+  "callbackUrl": "https://webhook.site/e105ebb9-2e90-4323-bdec-4f66a0e412c0",
+  "tradeSummary": "测试商品",
+  "totalAmount": 100,
+  "bizType": "100002",
+  "sandboxHost": "https://petalpay-developer-sandbox.cloud.huawei.com.cn",
+  "preorderPath": "/api/v2/aggr/preorder/create/app"
+}
